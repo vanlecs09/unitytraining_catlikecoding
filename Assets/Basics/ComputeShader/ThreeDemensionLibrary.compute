@@ -150,9 +150,3 @@ KERNEL_MOPH_FUNCTION(Torus, MultiWave);
 KERNEL_MOPH_FUNCTION(Torus, Ripple);
 KERNEL_MOPH_FUNCTION(Torus, Sphere);
 
-// [numthreads(8, 8, 1)]
-// void FunctionKernel (uint3 id: SV_DispatchThreadID) {
-//     float2 uv = GetUV(id);
-// 	SetPosition(id, Wave(uv.x, uv.y, _Time));
-// }
-
