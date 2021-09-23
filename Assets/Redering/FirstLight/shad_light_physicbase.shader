@@ -1,10 +1,10 @@
-Shader "catlikecoding/light specular" 
+Shader "catlikecoding/light/light physicbase" 
 {
     Properties {
         _Tint ("Tint", Color) = (1, 1, 1, 1)
-        _MainTex ("Albedo", 2D) = "white" {}
+        _MainTex ("Texture", 2D) = "white" {}
         _Smoothness ("Smoothness", Range(0, 1)) = 0.5
-        _SpecularTint ("Specular", Color) = (0.5, 0.5, 0.5)
+        _Metallic ("Metallic", Range(0, 1)) = 0
     }
     SubShader 
     {
@@ -15,20 +15,23 @@ Shader "catlikecoding/light specular"
                 "LightMode" = "ForwardBase"
             }
             CGPROGRAM
-            // #include "UnityCG.cginc"
-            
+            #pragma target 3.0
+            // #include "UnityStandardBRDF.cginc"
+            // #include "UnityStandardUtils.cginc"
+            #include "UnityPBSLighting.cginc"
             #pragma vertex MyVertexProgram
             #pragma fragment MyFragmentProgram
-            #include "UnityStandardBRDF.cginc"
+
             float4 _Tint;
-            sampler2D _MainTex;
+            sampler2D _MainTex ;
             float4 _MainTex_ST;
             float _Smoothness;
-            float4 _SpecularTint;
+            // float4 _SpecularTint;
+            float _Metallic;
 
             struct VertexData {
                 float4 position : POSITION;
-                float3 normal : NORMAL; 
+                float3 normal : NORMAL;
                 float2 uv : TEXCOORD0;
             };
             
@@ -51,18 +54,33 @@ Shader "catlikecoding/light specular"
 
             float4  MyFragmentProgram (Interpolators i) :SV_TARGET
             {
-                float3 albedo = tex2D(_MainTex, i.uv).rgb * _Tint.rgb;
-
                 i.normal = normalize(i.normal);
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPosition);
-                float3 reflectionDir = reflect(-lightDir, i.normal);
-                float3 halfVector = normalize(lightDir + viewDir);
+
                 float3 lightColor = _LightColor0.rgb;
-                float3 specular = albedo * _SpecularTint * lightColor * pow(DotClamped(halfVector, i.normal),
-                _Smoothness * 100
+                float3 albedo = tex2D(_MainTex, i.uv).rgb * _Tint.rgb;
+
+                float3 specularTint;
+                float oneMinusReflectivity;
+                albedo = DiffuseAndSpecularFromMetallic(
+                albedo, _Metallic, specularTint, oneMinusReflectivity
                 );
-                return float4(specular , 1);
+                
+                UnityLight light;
+                light.color = lightColor;
+                light.dir = lightDir;
+                light.ndotl = DotClamped(i.normal, lightDir);
+                UnityIndirect indirectLight;
+                indirectLight.diffuse = 0;
+                indirectLight.specular = 0;
+
+                return UNITY_BRDF_PBS(
+                albedo, specularTint,
+                oneMinusReflectivity, _Smoothness,
+                i.normal, viewDir,
+                light, indirectLight
+                );
             }
             ENDCG
         }
