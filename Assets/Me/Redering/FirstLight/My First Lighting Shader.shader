@@ -7,7 +7,7 @@
 		_BumpScale ("Bump Scale", Float) = 1
 		[Gamma] _Metallic ("Metallic", Range(0, 1)) = 0
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.1
-		_DetailTex ("Detail Texture", 2D) = "gray" {}
+		_DetailTex ("Detail Albedo", 2D) = "gray" {}
 		[NoScaleOffset] _DetailNormalMap ("Detail Normals", 2D) = "bump" {}
 		_DetailBumpScale ("Detail Bump Scale", Float) = 1
 	}
@@ -37,7 +37,7 @@
 
 			#define FORWARD_BASE_PASS
 
-			#include "../MutipleLight/My Lighting.cginc"
+			#include "My Lighting.cginc"
 
 			ENDCG
 		}
@@ -59,7 +59,7 @@
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
 
-			#include "../MutipleLight/My Lighting.cginc"
+			#include "My Lighting.cginc"
 
 			ENDCG
 		}
@@ -78,9 +78,11 @@
 			#pragma vertex MyShadowVertexProgram
 			#pragma fragment MyShadowFragmentProgram
 
-			#include "../Shadow/My Shadows.cginc"
+			#include "My Shadows.cginc"
 
 			ENDCG
 		}
 	}
+
+	CustomEditor "MyLightingShaderGUI"
 }

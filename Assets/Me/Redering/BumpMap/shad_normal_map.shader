@@ -1,4 +1,4 @@
-Shader "catlikecoding/light/light Bump map" 
+Shader "catlikecoding/light/light Normal Map" 
 {
     Properties {
         _Tint ("Tint", Color) = (1, 1, 1, 1)
