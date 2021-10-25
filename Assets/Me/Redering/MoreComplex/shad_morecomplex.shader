@@ -1,4 +1,4 @@
-﻿Shader "catlikecoding/complex material"
+﻿Shader "catlikecoding/more complex material"
 {
 
     Properties
@@ -16,6 +16,9 @@
         _DetailBumpScale ("Detail BumpScale", Float) = 1
         [NoScaleOffset] _EmissionMap("Emission Texture", 2D) = "black" {}
         [HDR] _Emission ("Emission Color", Color) = (0,0,0,0)
+        [NoScaleOffset] _OcclusionMap("Oclusion", 2D) = "black" {}
+        _OcclusionStrength("Occlusion Strength", Range(0,1)) = 1
+        [NoScaleOffset] _DetailMask ("Detail Mask", 2D) = "white" {}
     }
 
     // CGINCLUDE
@@ -41,6 +44,11 @@
             #pragma shader_feature _METALLIC_MAP
             #pragma shader_feature _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC _SMOOTHNESS_UNIFORM
             #pragma shader_feature _EMISSION_MAP
+            #pragma shader_feature _OCCLUSION_MAP
+            #pragma shader_feature _DETAIL_MASK
+            #pragma shader_feature _NORMAP_MAP
+            #pragma shader_feature _DETAIL_ALBEDO_MAP
+            #pragma shader_feature _DETAIL_NORMAL_MAP
             #pragma vertex MyVertexProgram
             #pragma fragment MyFragmentProgram
 
@@ -63,7 +71,10 @@
             #pragma target 3.0
             #pragma shader_feature _METALLIC_MAP
             #pragma shader_feature _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC _SMOOTHNESS_UNIFORM
-            #pragma shader_feature _EMISSION_MAP
+            #pragma shader_feature _DETAIL_MASK
+            #pragma shader_feature _NORMAP_MAP
+            #pragma shader_feature _DETAIL_ALBEDO_MAP
+            #pragma shader_feature _DETAIL_NORMAL_MAP
             #pragma vertex MyVertexProgram
             #pragma fragment MyFragmentProgram
             #include "My Lighting.cginc"
