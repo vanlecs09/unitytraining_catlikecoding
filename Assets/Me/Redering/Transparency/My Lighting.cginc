@@ -177,7 +177,6 @@ UnityLight CreateLight
     #endif
 
     UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos);
-    // attenuation *= GetOcclusion(i);
     light.color = _LightColor0.rgb * attenuation;
     light.ndotl = DotClamped(i.normal, light.dir);
     return light;
@@ -214,34 +213,34 @@ UnityIndirect CreateIndirectLight(Interpolators i, float3 viewDir)
     #endif
 
     #if defined(FORWARD_BASE_PASS)
-    indirectLight.diffuse += max(0, ShadeSH9(float4(i.normal, 1)));
-    float3 reflectionDir = reflect(-viewDir, i.normal);
+        indirectLight.diffuse += max(0, ShadeSH9(float4(i.normal, 1)));
+        float3 reflectionDir = reflect(-viewDir, i.normal);
 
-    Unity_GlossyEnvironmentData envData;
-    envData.roughness = 1 - GetSmoothness(i);
-    envData.reflUVW = BoxProjection(reflectionDir, i.worldPos,
-                                    unity_SpecCube0_ProbePosition,
-                                    unity_SpecCube0_BoxMin,
-                                    unity_SpecCube0_BoxMax);
-    float3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
+        Unity_GlossyEnvironmentData envData;
+        envData.roughness = 1 - GetSmoothness(i);
+        envData.reflUVW = BoxProjection(reflectionDir, i.worldPos,
+                                        unity_SpecCube0_ProbePosition,
+                                        unity_SpecCube0_BoxMin,
+                                        unity_SpecCube0_BoxMax);
+        float3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
 
-    envData.reflUVW = BoxProjection(
-        reflectionDir, i.worldPos,
-        unity_SpecCube1_ProbePosition,
-        unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax
-    );
-    #if UNITY_SPECCUBE_BLENDING
-               float interpolator = unity_SpecCube0_BoxMin.w;
-		        UNITY_BRANCH
-                if (interpolator < 0.99999) {
-                    float3 probe02 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1,unity_SpecCube0), unity_SpecCube1_HDR, envData);
-                    indirectLight.specular = lerp(probe02, probe0, unity_SpecCube0_BoxMin.w);
-                }
-                else {
-                     indirectLight.specular = probe0;
-                }
-    #else
-    indirectLight.specular = probe0;
+        envData.reflUVW = BoxProjection(
+            reflectionDir, i.worldPos,
+            unity_SpecCube1_ProbePosition,
+            unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax
+        );
+        #if UNITY_SPECCUBE_BLENDING
+           float interpolator = unity_SpecCube0_BoxMin.w;
+		    UNITY_BRANCH
+            if (interpolator < 0.99999) {
+                float3 probe02 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1,unity_SpecCube0), unity_SpecCube1_HDR, envData);
+                indirectLight.specular = lerp(probe02, probe0, unity_SpecCube0_BoxMin.w);
+            }
+            else {
+                 indirectLight.specular = probe0;
+            }
+        #else
+        indirectLight.specular = probe0;
     #endif
     float occlusion = GetOcclusion(i);
     indirectLight.diffuse *= occlusion;
@@ -270,17 +269,13 @@ float3 GetTangentSpaceNormal(Interpolators i)
 
 void InitializeFragmentNormal(inout Interpolators i)
 {
-    // float3 mainNormal =
-    //     UnpackScaleNormal(tex2D(_NormalMap, i.uv.xy), _BumpScale);
-    // float3 detailNormal =
-    //     UnpackScaleNormal(tex2D(_DetailNormalMap, i.uv.zw), _DetailBumpScale);
-    // detailNormal = lerp(float3(0, 0, 1), detailNormal, GetDetaiMask(i));
+
     float3 tangentSpaceNormal = GetTangentSpaceNormal(i);
 
     #if defined(BINORMAL_PER_FRAGMENT)
 		float3 binormal = CreateBinormal(i.normal, i.tangent.xyz, i.tangent.w);
     #else
-    float3 binormal = i.binormal;
+        float3 binormal = i.binormal;
     #endif
 
     i.normal = normalize(
@@ -294,8 +289,8 @@ float3 GetAlbedo(Interpolators i)
 {
     float3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Tint.rgb;
     #if defined (_DETAIL_ALBEDO_MAP)
-    float3 detail = tex2D(_DetailTex, i.uv.zw).rbg * unity_ColorSpaceDouble;
-    albedo = lerp(albedo, albedo * detail, GetDetailMask(i));
+        float3 detail = tex2D(_DetailTex, i.uv.zw).rbg * unity_ColorSpaceDouble;
+        albedo = lerp(albedo, albedo * detail, GetDetailMask(i));
     #endif
     return albedo;
 }
@@ -316,8 +311,8 @@ float4 MyFragmentProgram(Interpolators i) : SV_TARGET
     );
     // return float4(alpha, alpha, alpha, 1);
     #if defined(_RENDERING_TRANSPARENT)
-    albedo *= alpha;
-    alpha = 1 - oneMinusReflectivity + alpha * oneMinusReflectivity;
+        albedo *= alpha;
+        alpha = 1 - oneMinusReflectivity + alpha * oneMinusReflectivity;
     #endif
 
     // return float4(albedo, alpha);

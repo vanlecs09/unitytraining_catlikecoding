@@ -137,6 +137,8 @@ public class MyLightingShaderGUI : ShaderGUI
         {
             mode = RenderingMode.Transparent;
         }
+        
+
 
         EditorGUI.BeginChangeCheck();
         mode = (RenderingMode) EditorGUILayout.EnumPopup(
@@ -159,6 +161,10 @@ public class MyLightingShaderGUI : ShaderGUI
                 m.SetInt("_DstBlend", (int) renderSetting.DstBlend);
                 m.SetInt("_ZWrite", renderSetting.ZWrite ? 1 : 0);
             }
+        }
+        
+        if (mode == RenderingMode.Fade || mode == RenderingMode.Transparent) {
+            DoSemitransparentShadows();
         }
     }
 
@@ -253,6 +259,21 @@ public class MyLightingShaderGUI : ShaderGUI
         _editor.TexturePropertySingleLine(MakeLabel(map, "Detail Mask"), map);
         if (EditorGUI.EndChangeCheck())
             SetKeyWord("_DETAIL_MASK", map.textureValue);
+    }
+    
+    void DoSemitransparentShadows () {
+        EditorGUI.BeginChangeCheck();
+        bool semitransparentShadows =
+            EditorGUILayout.Toggle(
+                MakeLabel( "Semitransparent Shadows"),
+                IsKeyWordEnable("_SEMITRANSPARENT_SHADOWS")
+            );
+        if (!semitransparentShadows) {
+            _shouldShowAlphaCutoff = true;
+        }
+        if (EditorGUI.EndChangeCheck()) {
+            SetKeyWord("_SEMITRANSPARENT_SHADOWS", semitransparentShadows);
+        }
     }
 
     private MaterialProperty FindProperty(string propertyName)
